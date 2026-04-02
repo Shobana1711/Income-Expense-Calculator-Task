@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Expense Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+    <h1>Income Expense Tracker</h1>
+
+    <div class="summary">
+      <div class="income">Income: ₹<span id="totalIncome">0</span></div>
+      <div class="expense">Expense: ₹<span id="totalExpense">0</span></div>
+      <div class="balance">Balance: ₹<span id="balance">0</span></div>
+    </div>
+
+    <input type="text" id="desc" placeholder="Description" />
+    <input type="number" id="amount" placeholder="Amount" />
+    <select id="type">
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+    <button onclick="addEntry()">Add</button>
+    <button onclick="resetForm()">Reset</button>
+
+    <div class="filters">
+      <label><input type="radio" name="filter" value="all" checked onchange="filterData()"> All</label>
+      <label><input type="radio" name="filter" value="income" onchange="filterData()"> Income</label>
+      <label><input type="radio" name="filter" value="expense" onchange="filterData()"> Expense</label>
+    </div>
+
+    <ul id="list"></ul>
+  </div>
+</body>
+</html>
