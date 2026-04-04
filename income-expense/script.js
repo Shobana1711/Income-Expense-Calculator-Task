@@ -1,5 +1,6 @@
 let data = JSON.parse(localStorage.getItem("data")) || [];
-let editIndex = null;
+let editId = null;
+let currentFilter = "all"; 
 
 function saveData() {
   localStorage.setItem("data", JSON.stringify(data));
@@ -12,18 +13,25 @@ function addEntry() {
 
   if (!desc || !amount) return alert("Enter all fields");
 
-  const entry = { desc, amount: +amount, type };
-
-  if (editIndex !== null) {
-    data[editIndex] = entry;
-    editIndex = null;
+  if (editId !== null) {
+    data = data.map((item) =>
+      item.id === editId
+        ? { ...item, desc, amount: +amount, type }
+        : item
+    );
+    editId = null;
   } else {
-    data.push(entry);
+    data.push({
+      id: Date.now(),
+      desc,
+      amount: +amount,
+      type,
+    });
   }
 
   saveData();
   resetForm();
-  render();
+  applyFilter(); 
 }
 
 function render(filtered = data) {
@@ -33,20 +41,24 @@ function render(filtered = data) {
   let income = 0,
     expense = 0;
 
+  
   data.forEach((item) => {
     if (item.type === "income") income += item.amount;
     else expense += item.amount;
   });
 
+ 
   filtered.forEach((item) => {
-    const actualIndex = data.indexOf(item);
+    const li = document.createElement("li");
+
     li.innerHTML = `
       ${item.desc} - ₹${item.amount} (${item.type})
       <div class="actions">
-        <button onclick="editEntry(${actualIndex})">Edit</button>
-        <button onclick="deleteEntry(${actualIndex})">Delete</button>
+        <button onclick="editEntry(${item.id})">Edit</button>
+        <button onclick="deleteEntry(${item.id})">Delete</button>
       </div>
     `;
+
     list.appendChild(li);
   });
 
@@ -54,29 +66,48 @@ function render(filtered = data) {
   document.getElementById("totalExpense").innerText = expense;
   document.getElementById("balance").innerText = income - expense;
 }
-function deleteEntry(index) {
-  data.splice(index, 1);
+
+function deleteEntry(id) {
+  data = data.filter((item) => item.id !== id);
   saveData();
-  render();
+  applyFilter(); 
 }
 
-function editEntry(index) {
-  const item = data[index];
+function editEntry(id) {
+  const item = data.find((item) => item.id === id);
+
   document.getElementById("desc").value = item.desc;
   document.getElementById("amount").value = item.amount;
   document.getElementById("type").value = item.type;
-  editIndex = index;
+
+  editId = id;
 }
 
 function resetForm() {
   document.getElementById("desc").value = "";
   document.getElementById("amount").value = "";
-  editIndex = null;
+  editId = null;
 }
 
 function filterData() {
-  const filter = document.querySelector("input[name='filter']:checked").value;
-  if (filter === "all") return render(data);
-  render(data.filter((item) => item.type === filter));
+  currentFilter = document.querySelector(
+    "input[name='filter']:checked"
+  ).value;
+
+  applyFilter();
 }
-render();
+
+
+function applyFilter() {
+  if (currentFilter === "all") {
+    render(data);
+  } else {
+    const filtered = data.filter(
+      (item) => item.type === currentFilter
+    );
+    render(filtered);
+  }
+}
+
+
+applyFilter();
